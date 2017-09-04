@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+</head>
+
+<body>
+    <canvas id="webgl" width="500" height="400"></canvas>
+    <script>
+        // 顶点着色器程序
+        const vertexShaderSource =
+            `
+            attribute vec4 apos;
+            void main() {
+              gl_Position = apos;
+              gl_PointSize = 10.0;
+        }`
+        
+        // 片元着色器程序
+        const fragmentShaderSource =
+            `void main() {
+              gl_FragColor = vec4(1.0,0.5,0.0,1.0);
+          }`
+
+          var points = [
+          {x:0.0,y:0.0},
+          {x:.6,y:.8},
+          {x:.2,y:.5}
+      ];
+      function main(){
+          var canvas = document.getElementById('webgl');
+          var cxt = canvas.getContext('webgl');
+          var vertexShader = cxt.createShader(cxt.VERTEX_SHADER);
+          var fragmentShader = cxt.createShader(cxt.FRAGMENT_SHADER);
+          cxt.shaderSource(vertexShader,vertexShaderSource);
+          cxt.shaderSource(fragmentShader,fragmentShaderSource);
+          cxt.compileShader(vertexShader);
+          cxt.compileShader(fragmentShader);
+          var program = cxt.createProgram();
+          cxt.attachShader(program,vertexShader);
+          cxt.attachShader(program,fragmentShader);
+          cxt.linkProgram(program);
+          cxt.useProgram(program);
+
+          var aposLocation = cxt.getAttribLocation(program,'apos');
+
+          cxt.clearColor(0.2,0.2,0.2,1.0);
+          cxt.clear(cxt.COLOR_BUFFER_BIT);
+
+          for(var i= 0,num = points.length;i<num;i++){
+              cxt.vertexAttrib4f(aposLocation,points[i].x,points[i].y,1.0,1.0);
+              cxt.drawArrays(cxt.POINTS,0,1);
+          }
+
+
+      }
+
+      main();
+    </script>
+</body>
+
+</html>
