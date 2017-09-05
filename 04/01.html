@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<canvas id="example04" width="500" height="500"></canvas>
+<script src="../lib/lib.js"></script>
+<script>
+    var cxt = document.getElementById('example04').getContext('webgl');
+    // 顶点着色器程序
+    const vertexShaderSource =
+    `
+    attribute vec4 pos;
+    void main() {
+      gl_Position = pos;
+      gl_PointSize = 10.0;
+}`
+
+// 片元着色器程序
+const fragmentShaderSource =
+    `void main() {
+      gl_FragColor = vec4(1.0,0.5,0.0,1.0);
+  }`
+    var program = initShader(cxt,vertexShaderSource,fragmentShaderSource);
+
+    var posLocation = cxt.getAttribLocation(program,'pos');
+
+    var data = new Float32Array([
+        0.0,0.0,
+        .5,.5,
+        .3,.6,
+        -.3,.9
+    ]);
+
+    var buffer = cxt.createBuffer();
+    cxt.bindBuffer(cxt.ARRAY_BUFFER,buffer);
+    cxt.bufferData(cxt.ARRAY_BUFFER,data,cxt.STATIC_DRAW);
+
+    cxt.vertexAttribPointer(posLocation,2,cxt.FLOAT,false,0,0);
+    cxt.enableVertexAttribArray(posLocation);
+
+    cxt.clearColor(0.0,0.0,0.0,1.0);
+    cxt.clear(cxt.COLOR_BUFFER_BIT);
+
+    cxt.drawArrays(cxt.LINES,0,4);
+
+
+
+</script>
+</body>
+</html>
