@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+    <canvas id="example05" width="500" height="500"></canvas>
+    <script src="../lib/lib.js"></script>
+    <script>
+    // 顶点着色器程序
+    const vertexShaderSource =
+        `
+    attribute vec4 pos;
+    uniform mat4 xf;
+    void main() {
+      gl_Position = xf * pos;
+}`
+
+    // 片元着色器程序
+    const fragmentShaderSource =
+        `void main() {
+      gl_FragColor = vec4(1.0,.0,.0,1.0);
+  }`
+
+    var cxt = document.getElementById('example05').getContext('webgl');
+
+    var buffer = cxt.createBuffer();
+    cxt.bindBuffer(cxt.ARRAY_BUFFER, buffer);
+    var data = new Float32Array([
+        0.0, 0.0, -.5, -.5,
+        .5, -.5,
+    ]);
+
+    cxt.bufferData(cxt.ARRAY_BUFFER, data, cxt.STATIC_DRAW);
+
+    var program = initShader(cxt, vertexShaderSource, fragmentShaderSource);
+
+    var posLocation = cxt.getAttribLocation(program, 'pos');
+    var xfLocation = cxt.getUniformLocation(program, 'xf');
+
+
+    cxt.vertexAttribPointer(posLocation, 2, cxt.FLOAT, false, 0, 0);
+    cxt.enableVertexAttribArray(posLocation);
+
+
+    var sx = 1.0,
+        sy = 1.0;
+
+    function render() {
+        var xf = new Float32Array([
+            sx, 0.0, 0.0, 0.0,
+            0.0, sy, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0
+        ]);
+
+        cxt.clearColor(0.0, 0.0, 0.0, 1.0);
+        cxt.clear(cxt.COLOR_BUFFER_BIT);
+        cxt.uniformMatrix4fv(xfLocation, false, xf);
+        cxt.drawArrays(cxt.TRIANGLES, 0, 3);
+    }
+
+    render()
+
+    document.addEventListener('keydown', function(event) {
+
+        var old_sx = sx;
+        var old_sy = sy;
+
+        switch (event.keyCode) {
+            // 横向放大
+            case 37:
+                sx += 0.05;
+                break;
+                // 纵向方法
+            case 38:
+                sy += 0.05;
+                break;
+                // 横向缩小
+            case 39:
+                sx -= 0.05;
+                break;
+                // 纵向缩小
+            case 40:
+                sy -= 0.05;
+                break;
+        }
+
+
+        if (!(sx * -.3 > -1.0 && sx * .3 < 1.0 && sy * -.3 > -1.0 && sy * .3 < 1.0)) {
+            sx = old_sx;
+            sy = old_sy;
+        }
+
+        render();
+
+
+    });
+    </script>
+</body>
+
+</html>

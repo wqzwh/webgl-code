@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+    <canvas id="example05" width="500" height="500"></canvas>
+    <button id="kuai">快</button>
+    <button id="man">慢</button>
+    <button id="kg">开关</button>
+    <script src="../lib/lib.js"></script>
+    <script>
+    var kuaiButton = document.querySelector('#kuai');
+    var manButton = document.querySelector('#man');
+    var kgButton = document.querySelector('#kg');
+
+    // 顶点着色器程序
+    const vertexShaderSource =
+        `
+    attribute vec4 pos;
+    uniform mat4 xf;
+    void main() {
+      gl_Position = xf * pos;
+}`
+
+    // 片元着色器程序
+    const fragmentShaderSource =
+        `void main() {
+      gl_FragColor = vec4(1.0,.0,.0,1.0);
+  }`
+
+    var cxt = document.getElementById('example05').getContext('webgl');
+
+
+    var t, angle, cosB, sinB, zl, isOpen;
+    angle = 0;
+    zl = 1;
+    isOpen = true;
+
+
+    kuaiButton.onclick = function() {
+        if (zl < 20) {
+            zl += 1;
+        }
+    };
+
+    manButton.onclick = function() {
+        if (zl > 0) {
+            zl -= 1;
+        }
+    };
+
+    kgButton.onclick = function() {
+        isOpen = !isOpen;
+        if (isOpen) {
+            render();
+        }
+    };
+
+
+    var buffer = cxt.createBuffer();
+    cxt.bindBuffer(cxt.ARRAY_BUFFER, buffer);
+    var data = new Float32Array([
+        0.0, 0.0,
+        .5, .0
+    ]);
+
+    cxt.bufferData(cxt.ARRAY_BUFFER, data, cxt.STATIC_DRAW);
+
+    var program = initShader(cxt, vertexShaderSource, fragmentShaderSource);
+
+    var posLocation = cxt.getAttribLocation(program, 'pos');
+    var xfLocation = cxt.getUniformLocation(program, 'xf');
+
+
+    cxt.vertexAttribPointer(posLocation, 2, cxt.FLOAT, false, 0, 0);
+    cxt.enableVertexAttribArray(posLocation);
+
+
+    var time;
+
+    function render() {
+        angle += zl;
+
+        t = Math.PI * angle / 180;
+        sinB = Math.sin(t);
+        cosB = Math.cos(t);
+        var xf = new Float32Array([
+            cosB, sinB, 0.0, 0.0, -sinB, cosB, 0.0, .0,
+            0.0, .0, 1.0, .0,
+            0.0, .0, .0, 1.0
+        ]);
+        cxt.uniformMatrix4fv(xfLocation, false, xf);
+
+        cxt.clearColor(.5, .5, .5, 1.0);
+        cxt.clear(cxt.COLOR_BUFFER_BIT);
+
+        cxt.drawArrays(cxt.LINES, 0, 2);
+        time = setTimeout(render, 500);
+
+        if (!isOpen) {
+            clearTimeout(time);
+        }
+    }
+
+    render()
+    </script>
+</body>
+
+</html>
