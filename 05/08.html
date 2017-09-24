@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+    <canvas id="example08" width="500" height="500"></canvas>
+    <script src="../lib/lib.js"></script>
+    <script>
+    function mix(a, b) {
+        var result = new Float32Array(16);
+
+        for (var i = 0; i < 4; i++) {
+            result[i] = a[i] * b[0] + a[i + 4] * b[1] + a[i + 8] * b[2] + a[i + 12] * b[3];
+            result[i + 4] = a[i] * b[4] + a[i + 4] * b[5] + a[i + 8] * b[6] + a[i + 12] * b[7];
+            result[i + 8] = a[i] * b[8] + a[i + 4] * b[9] + a[i + 8] * b[10] + a[i + 12] * b[11];
+            result[i + 12] = a[i] * b[12] + a[i + 4] * b[13] + a[i + 8] * b[14] + a[i + 12] * b[15];
+        }
+
+        return result;
+    }
+
+
+
+    // 顶点着色器程序
+    const vertexShaderSource =
+        `
+    attribute vec4 pos;
+    uniform mat4 xf;
+    void main() {
+      gl_Position = pos * xf;
+}`
+
+    // 片元着色器程序
+    const fragmentShaderSource =
+        `void main() {
+      gl_FragColor = vec4(1.0,.0,.0,1.0);
+  }`
+
+    var cxt = document.getElementById('example08').getContext('webgl');
+
+    var buffer = cxt.createBuffer();
+    cxt.bindBuffer(cxt.ARRAY_BUFFER, buffer);
+    var data = new Float32Array([
+        0.0, 0.2, -.2, -.2,
+        .2, -.2,
+    ]);
+
+    cxt.bufferData(cxt.ARRAY_BUFFER, data, cxt.STATIC_DRAW);
+
+    var program = initShader(cxt, vertexShaderSource, fragmentShaderSource);
+
+    var posLocation = cxt.getAttribLocation(program, 'pos');
+    var xfLocation = cxt.getUniformLocation(program, 'xf');
+
+
+    cxt.vertexAttribPointer(posLocation, 2, cxt.FLOAT, false, 0, 0);
+    cxt.enableVertexAttribArray(posLocation);
+
+
+    /**
+     * 定义两个矩阵
+     */
+    var cosB, sinB, tx = 0.0,
+        ty = 0.0;
+    var ANGLE = 1;
+
+
+    function run() {
+        var t = Math.PI * ANGLE / 180;
+        sinB = Math.sin(t);
+        cosB = Math.cos(t);
+
+        var xz = new Float32Array([
+            cosB, sinB, 0.0, 0.0, -sinB, cosB, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0
+        ]);
+
+        tx += .005;
+        ty += .005;
+
+        ANGLE += 1;
+
+        var py = new Float32Array([
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            tx, ty, 0.0, 1.0
+        ]);
+
+        cxt.uniformMatrix4fv(xfLocation, false, mix(xz,py));
+        cxt.clearColor(0.0, 0.0, 0.0, 1.0);
+        cxt.clear(cxt.COLOR_BUFFER_BIT);
+
+        cxt.drawArrays(cxt.TRIANGLES, 0, 3);
+
+
+        setTimeout(run, 500)
+    }
+
+    run();
+    </script>
+</body>
+
+</html>

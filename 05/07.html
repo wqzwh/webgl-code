@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+    <canvas id="example08" width="500" height="500"></canvas>
+    <script src="../lib/lib.js"></script>
+    <script>
+    // 顶点着色器程序
+    const vertexShaderSource =
+        `
+    attribute vec4 pos;
+    uniform mat4 xz;
+    uniform mat4 py;
+    void main() {
+      gl_Position = pos * xz * py;
+}`
+
+    // 片元着色器程序
+    const fragmentShaderSource =
+        `void main() {
+      gl_FragColor = vec4(1.0,.0,.0,1.0);
+  }`
+
+    var cxt = document.getElementById('example08').getContext('webgl');
+
+    var buffer = cxt.createBuffer();
+    cxt.bindBuffer(cxt.ARRAY_BUFFER, buffer);
+    var data = new Float32Array([
+        0.0, 0.2, -.2, -.2,
+        .2, -.2,
+    ]);
+
+    cxt.bufferData(cxt.ARRAY_BUFFER, data, cxt.STATIC_DRAW);
+
+    var program = initShader(cxt, vertexShaderSource, fragmentShaderSource);
+
+    var posLocation = cxt.getAttribLocation(program, 'pos');
+    var xzLocation = cxt.getUniformLocation(program, 'xz');
+    var pyLocation = cxt.getUniformLocation(program, 'py');
+
+
+    cxt.vertexAttribPointer(posLocation, 2, cxt.FLOAT, false, 0, 0);
+    cxt.enableVertexAttribArray(posLocation);
+
+
+    /**
+     * 定义两个矩阵
+     */
+    var cosB, sinB, tx = 0.0,
+        ty = 0.0;
+    var ANGLE = 1;
+
+
+    function run() {
+        var t = Math.PI * ANGLE / 180;
+        sinB = Math.sin(t);
+        cosB = Math.cos(t);
+
+        var xz = new Float32Array([
+            cosB, sinB, 0.0, 0.0, 
+            -sinB, cosB, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0
+        ]);
+
+        tx += .005;
+        ty += .005;
+
+        ANGLE += 1;
+
+        var py = new Float32Array([
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            tx, ty, 0.0, 1.0
+        ]);
+
+        cxt.uniformMatrix4fv(xzLocation,false, xz);
+        cxt.uniformMatrix4fv(pyLocation,false, py);
+        cxt.clearColor(0.0, 0.0, 0.0, 1.0);
+        cxt.clear(cxt.COLOR_BUFFER_BIT);
+
+        cxt.drawArrays(cxt.TRIANGLES, 0, 3);
+
+
+        setTimeout(run, 500)
+    }
+
+    run();
+    </script>
+</body>
+
+</html>
