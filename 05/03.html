@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+    <canvas id="example05" width="500" height="500"></canvas>
+    <script src="../lib/lib.js"></script>
+    <script>
+    // 顶点着色器程序
+    const vertexShaderSource =
+        `
+    attribute vec4 pos;
+    uniform float cosB;
+    uniform float sinB;
+    void main() {
+      gl_Position.x = pos.x * cosB - pos.y * sinB;
+      gl_Position.y = pos.x * sinB + pos.y * cosB;
+      gl_Position.z = .0;
+      gl_Position.w = 1.0;
+}`
+
+    // 片元着色器程序
+    const fragmentShaderSource =
+        `void main() {
+      gl_FragColor = vec4(1.0,.0,.0,1.0);
+  }`
+
+    var cxt = document.getElementById('example05').getContext('webgl');
+
+    var buffer = cxt.createBuffer();
+    cxt.bindBuffer(cxt.ARRAY_BUFFER, buffer);
+    var data = new Float32Array([
+        0.0, 0.0, -.5, -.5,
+        .5, -.5,
+    ]);
+
+    cxt.bufferData(cxt.ARRAY_BUFFER, data, cxt.STATIC_DRAW);
+
+    var program = initShader(cxt, vertexShaderSource, fragmentShaderSource);
+
+
+
+    var posLocation = cxt.getAttribLocation(program, 'pos');
+    var cosBLocation = cxt.getUniformLocation(program, 'cosB');
+    var sinBLocation = cxt.getUniformLocation(program, 'sinB');
+
+
+    cxt.vertexAttribPointer(posLocation, 2, cxt.FLOAT, false, 0, 0);
+    cxt.enableVertexAttribArray(posLocation);
+
+    var angle = 10.0;
+    function render() {
+        var t = Math.PI * angle / 180;
+        var cosB = Math.sin(t);
+        var sinB = Math.cos(t);
+        cxt.clearColor(0.0, 0.0, 0.0, 1.0);
+        cxt.clear(cxt.COLOR_BUFFER_BIT);
+        cxt.uniform1f(cosBLocation, cosB);
+        cxt.uniform1f(sinBLocation, sinB);
+        cxt.drawArrays(cxt.TRIANGLES, 0, 3);
+    }
+
+    setInterval(() => {
+        angle += 1.0;
+        render();
+    }, 1000)
+    </script>
+</body>
+
+</html>

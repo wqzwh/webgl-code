@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+    <canvas id="example05" width="500" height="500"></canvas>
+    <button type="btn" id="fangda" onclick="fangda()">放大</button>
+    <button type="btn" id="suoxiao" onclick="suoxiao()">缩小</button>
+    <script src="../lib/lib.js"></script>
+    <script>
+    // 顶点着色器程序
+    const vertexShaderSource =
+        `
+    attribute vec2 pos;
+    uniform float w;
+    void main() {
+      gl_Position = vec4(pos,0.0,w);
+}`
+
+    // 片元着色器程序
+    const fragmentShaderSource =
+        `void main() {
+      gl_FragColor = vec4(1.0,.0,.0,1.0);
+  }`
+
+    var cxt = document.getElementById('example05').getContext('webgl');
+
+    var buffer = cxt.createBuffer();
+    cxt.bindBuffer(cxt.ARRAY_BUFFER, buffer);
+    var data = new Float32Array([
+        0.0, 0.0, -.5, -.5,
+        .5, -.5,
+    ]);
+
+    cxt.bufferData(cxt.ARRAY_BUFFER, data, cxt.STATIC_DRAW);
+
+    var program = initShader(cxt, vertexShaderSource, fragmentShaderSource);
+
+    
+
+    var posLocation = cxt.getAttribLocation(program, 'pos');
+    var wLocation = cxt.getUniformLocation(program, 'w');
+
+
+
+    cxt.vertexAttribPointer(posLocation, 2, cxt.FLOAT, false, 0, 0);
+    cxt.enableVertexAttribArray(posLocation);
+    
+	var w = 1.0;	
+    render();
+    function render() {
+        cxt.clearColor(0.0, 0.0, 0.0, 1.0);
+        cxt.clear(cxt.COLOR_BUFFER_BIT);
+        cxt.uniform1f(wLocation, w);
+        cxt.drawArrays(cxt.TRIANGLES, 0, 3);
+    }
+    function fangda() {
+        w += .05;
+        render()
+    }
+
+    function suoxiao() {
+        w -= .05;
+        render()
+    }
+    </script>
+</body>
+
+</html>
