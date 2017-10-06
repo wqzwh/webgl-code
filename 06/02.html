@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+    <canvas id="example06" width="500" height="500"></canvas>
+    <script src="../lib/lib.js"></script>
+    <script>
+    // 顶点着色器程序
+    const vertexShaderSource =
+        `
+    attribute vec4 pos;
+    attribute float size;
+    void main() {
+      gl_Position = pos;
+      gl_PointSize = size;
+}`
+
+    // 片元着色器程序
+    const fragmentShaderSource =
+        `void main() {
+      gl_FragColor = vec4(1.0,.0,.0,1.0);
+  }`
+
+    var cxt = document.getElementById('example06').getContext('webgl');
+
+    var program = initShader(cxt, vertexShaderSource, fragmentShaderSource);
+
+    var buffer = cxt.createBuffer();
+    cxt.bindBuffer(cxt.ARRAY_BUFFER, buffer);
+    var data = new Float32Array([
+        0.0, 0.0, 10.0,
+        0.5, 0.5, 30.0,
+        0.2, -.6, 50.0
+    ]);
+    cxt.bufferData(cxt.ARRAY_BUFFER, data, cxt.STATIC_DRAW);
+
+    var posLocation = cxt.getAttribLocation(program, 'pos');
+    var sizeLocation = cxt.getAttribLocation(program, 'size');
+
+    cxt.vertexAttribPointer(posLocation, 2, cxt.FLOAT, false, data.BYTES_PER_ELEMENT * 3, 0);
+    cxt.vertexAttribPointer(sizeLocation, 1, cxt.FLOAT, false, data.BYTES_PER_ELEMENT * 3, data.BYTES_PER_ELEMENT * 2)
+
+
+    cxt.enableVertexAttribArray(posLocation);
+    cxt.enableVertexAttribArray(sizeLocation);
+
+    cxt.drawArrays(cxt.POINTS, 0, 3);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+    <canvas id="example06" width="500" height="500"></canvas>
+    <script src="../lib/lib.js"></script>
+    <script>
+    // 顶点着色器程序
+    const vertexShaderSource =
+        `
+        uniform mat4 xf;
+    attribute vec4 pos;
+    varying vec4 vpos;
+    void main() {
+      gl_Position =  xf * pos;
+      vpos = gl_Position;
+}`
+
+    // 片元着色器程序
+    const fragmentShaderSource =
+        `
+		precision lowp float;
+        varying vec4 vpos;
+        void main() {
+      if(vpos.x >= 0.0 && vpos.y >= 0.0){
+                   gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+               }else if(vpos.x >0.0 && vpos.y < 0.0){
+                   gl_FragColor = vec4(0.0,1.0,0.0,1.0);
+               }else if(vpos.x < 0.0 && vpos.y > 0.0){
+                   gl_FragColor = vec4(0.0,0.0,1.0,1.0);
+               }else{
+                   gl_FragColor = vec4(0.2,0.2,0.2,1.0);
+            }
+  }`
+
+    var cxt = document.getElementById('example06').getContext('webgl');
+
+    var program = initShader(cxt, vertexShaderSource, fragmentShaderSource);
+
+    var data = new Float32Array([-.3, .3, -0.5, -.3,
+        .5, .3,
+        .3, -.3
+
+    ]);
+
+    bindAttribute(cxt, 'pos', data, program);
+
+    var xfLocation = cxt.getUniformLocation(program, 'xf');
+    var angle = 0;
+
+
+    run()
+
+    function run() {
+        angle++
+        var xzm = createXZMatrix(angle);
+        cxt.uniformMatrix4fv(xfLocation, false, xzm);
+        cxt.drawArrays(cxt.TRIANGLE_STRIP, 0, 4);
+        setTimeout(run, 100)
+    }
+    </script>
+</body>
+
+</html>
