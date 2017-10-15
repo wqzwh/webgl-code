@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+    <canvas id="example07" width="500" height="500"></canvas>
+    <script src="../lib/lib.js"></script>
+    <script>
+    // 顶点着色器程序
+    const vertexShaderSource =
+        `
+    attribute vec4 a_Position;
+    attribute vec4 a_Color;
+    uniform mat4 u_vmatrix;
+    varying vec4 v_Color;
+    void main() {
+      gl_Position = u_vmatrix * a_Position;
+      v_Color = a_Color;
+}`
+
+    // 片元着色器程序
+    const fragmentShaderSource =
+        `
+        precision lowp float;
+        varying vec4 v_Color;
+        void main() {
+      gl_FragColor = v_Color;
+  }`
+
+    var cxt = document.getElementById('example07').getContext('webgl');
+
+    var program = initShader(cxt, vertexShaderSource, fragmentShaderSource);
+
+
+    function normalize(v){
+        var sum = 0;
+        for (var i=0;i< v.length;i++){
+            sum += v[i] * v[i];
+        }
+        var result = Math.sqrt(sum);
+        for(var j=0;j< v.length; j++){
+            v[i] = v[i] / result;
+        }
+    }
+
+    function cross(a,b){
+        var nX = a[1] * b[2] - a[2] * b[1];
+        var nY = a[2] * b[0] -a[0] * b[2];
+        var nZ = a[0] * b[1] - a[1] * b[0];
+
+        return new Float32Array([nX,nY,nZ]);
+    }
+
+    function dot(a,b){
+        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    }
+
+    function minus(a , b){
+        return new Float32Array([a[0] - b[0], a[1] - b[1] , a[2] - b[2]]);
+    }
+
+
+    function getVMatrix(){
+
+        var eye = new Float32Array([0.4,0.0,0.26]);
+        var lookat = new Float32Array([0.0,0.0,0.0]);
+        var up = new Float32Array([0,1,1]);
+
+        var zA = minus(eye , lookat);
+        normalize(zA);
+
+        normalize(up);
+        var xA = cross(up, zA);
+
+        var yA = cross(zA,xA);
+
+        return new Float32Array([
+                xA[0],yA[0],zA[0], 0,
+                xA[1],yA[1],zA[1], 0,
+                xA[2],yA[2],zA[2], 0,
+                - dot(xA,eye), -dot(yA,eye),-dot(zA,eye),1
+
+        ])
+
+    }
+
+
+    var data = new Float32Array([
+        0.0, 0.5, -0.4, 0.4, 1.0, 0.4,
+        -0.5, -0.5, -0.4, 0.4, 1.0, 0.4,
+        0.5, -0.5, -0.4, 1.0, 0.4, 0.4,
+
+        0.5, 0.4, -0.2, 1.0, 0.4, 0.4,
+        -0.5, 0.4, -0.2, 1.0, 1.0, 0.4,
+        0.0, -0.6, -0.2, 1.0, 1.0, 0.4
+    ]);
+
+    var buffer = cxt.createBuffer();
+    cxt.bindBuffer(cxt.ARRAY_BUFFER, buffer);
+    cxt.bufferData(cxt.ARRAY_BUFFER, data, cxt.STATIC_DRAW );
+
+    var BYTES_SIZE = data.BYTES_PER_ELEMENT;
+    var a_Position = cxt.getAttribLocation(program,'a_Position');
+    cxt.vertexAttribPointer(a_Position,3,cxt.FLOAT,false,BYTES_SIZE * 6 , 0);
+    cxt.enableVertexAttribArray(a_Position);
+
+    var a_Color = cxt.getAttribLocation(program,'a_Color');
+    cxt.vertexAttribPointer(a_Color,3,cxt.FLOAT,false,BYTES_SIZE * 6 , BYTES_SIZE * 3);
+    cxt.enableVertexAttribArray(a_Color);
+
+    var u_vmatrixLocation = cxt.getUniformLocation(program,'u_vmatrix');
+
+    var mx = getVMatrix(); // 视图矩阵
+
+    cxt.uniformMatrix4fv(u_vmatrixLocation,false,mx);
+
+    cxt.clearColor(1.0,1.0,1.0,1.0);
+    cxt.clear(cxt.COLOR_BUFFER_BIT);
+
+    cxt.drawArrays(cxt.TRIANGLES,0,6);
+
+    </script>
+</body>
+
+</html>
