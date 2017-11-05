@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<canvas id="canvas" width="600" height="600"></canvas>
+<script src="../lib/lib.js"></script>
+<script>
+
+    var vertexShaderSource = `
+        attribute vec4 pos;
+        uniform mat4 u_mx;
+        attribute vec4 a_Color;
+        varying vec4 v_Color;
+
+        void main(){
+            gl_Position = u_mx * pos;
+            v_Color = a_Color;
+        }
+    `
+
+    var fragmentShaderSource = `
+        precision lowp float;
+        varying vec4 v_Color;
+        void main(){
+            gl_FragColor = v_Color;
+        }
+    `
+
+    /**
+     * 创建透视投影矩阵
+     * fov 指定垂直视角
+     * aspect 宽度 ／ 高度
+     * near  近裁切面
+     * far  远裁切面
+     */
+    function getTS(fov,aspect,near,far){
+        fov = fov * Math.PI / 180; // 弧度
+        return new Float32Array([
+            1 / (aspect * Math.tan(fov / 2)), 0, 0, 0,
+            0, 1 / Math.tan(fov / 2), 0, 0,
+            0, 0, -(far + near) / (far - near), -1,
+            0, 0, -2 * (far * near) / (far - near), 0
+        ]);
+    }
+
+    var gl = canvas.getContext('webgl');
+    var program = initShader(gl,vertexShaderSource,fragmentShaderSource);
+
+
+    // 四个三角形
+    var buffer_data = new Float32Array([
+
+        .75, 1.0, 0.8, .4, .4, 1.0,
+        .25, -1.0, .8, .4, .4, 1.0,
+        1.0, -1.0, .8, 1.0, .4, .4,
+
+        0.75, 1.0, -.8, 1.0, 1.0, .4,
+        .25, -1.0, -.8, 1.0, 1.0, .4,
+        1.0, -1.0, -.8, 1.0, .4, .4,
+
+
+        -.75, 1.0, .8, .4, .4, 1.0,
+        -1.0, -1.0, .8, .4, .4, 1.0,
+        -.25, -1.0, .8, 1.0, .4, .4,
+
+        // 第一个三角形
+        -.75, 1.0, -.8, 1.0, 1.0, .4,
+        -1.0, -1.0, -.8, 1.0, 1.0, 0.4,
+        -0.25, -1.0, -.8, 1.0, .4, .4,
+
+    ]);
+
+    var buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, buffer_data, gl.STATIC_DRAW);
+
+
+    var posLocation = gl.getAttribLocation(program, 'pos');
+    var aColorLocation = gl.getAttribLocation(program, 'a_Color');
+    var uMXLocation = gl.getUniformLocation(program, 'u_mx');
+
+    var BYTES_SIZE = buffer_data.BYTES_PER_ELEMENT;
+
+    gl.vertexAttribPointer(posLocation, 3, gl.FLOAT, false, BYTES_SIZE * 6, 0);
+    gl.vertexAttribPointer(aColorLocation, 3, gl.FLOAT, false, BYTES_SIZE * 6, BYTES_SIZE * 3);
+    gl.enableVertexAttribArray(posLocation);
+    gl.enableVertexAttribArray(aColorLocation);
+
+
+    function draw() {
+
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+        gl.enable(gl.DEPTH_TEST);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        var mx = getTS(30, canvas.width / canvas.height, 1, 100);
+        var vmx = getVMatrix(0,0,5,0,0,-100);
+        gl.uniformMatrix4fv(uMXLocation,false,multiplyMatrix(mx,vmx));
+
+        gl.drawArrays(gl.TRIANGLES, 0, 12);
+    }
+
+    draw();
+
+</script>
+</body>
+</html>
