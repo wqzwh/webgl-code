@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+</head>
+
+<body>
+  <script>
+  // 创建场景
+  var scene = new THREE.Scene();
+
+  // 创建相机
+  var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, .1, 1000);
+
+  // 创建渲染器
+  var renderer = new THREE.WebGLRenderer();
+
+  renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  // 开启阴影效果
+  renderer.shadowMapEnabled = true;
+
+  // 顶点着色器
+  var planeGeometry = new THREE.PlaneGeometry(60, 20, 1, 1);
+
+  // 材质
+  var planeMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
+  var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+  plane.receiveShadow = true;
+
+  plane.rotation.x = -.5 * Math.PI;
+  plane.position.x = 16;
+  plane.position.y = 0;
+  plane.position.z = 0;
+
+  scene.add(plane);
+
+
+  // 创建立方体
+  var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+  var cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+  var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+  cube.castShadow = true;
+
+  cube.position.x = -4;
+  cube.position.y = 3;
+  cube.position.z = 0;
+
+  scene.add(cube);
+
+  // 创建球体
+  var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
+  var sphereMaterial = new THREE.MeshLambertMaterial({ color: 0x77ffff });
+  var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+  sphere.castShadow = true;
+  sphere.position.x = 20;
+  sphere.position.y = 0;
+  sphere.position.z = 2;
+
+
+  scene.add(sphere);
+
+  camera.position.x = -30;
+  camera.position.y = 40;
+  camera.position.z = 30;
+  camera.lookAt(scene.position);
+
+  // 创建环境光源
+  var ambientLight = new THREE.AmbientLight(0x0c0c0c);
+  scene.add(ambientLight);
+
+  var spotLight = new THREE.SpotLight(0xffffff);
+  spotLight.position.set(-40, 60, -10);
+  spotLight.castShadow = true;
+  scene.add(spotLight);
+
+  document.body.appendChild(renderer.domElement);
+
+  var step = 0;
+  render();
+
+  function render() {
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
+    cube.rotation.z += 0.01;
+
+    step += 0.04; //step+=0.04定义了球体弹跳的速度
+    sphere.position.x = 20 + (10 * (Math.cos(step))); //Math.cos()和Math.sin()函数通过使用step变量帮我们创建了平滑的轨迹
+    sphere.position.y = 2 + (10 * Math.abs(Math.sin(step)));
+
+    requestAnimationFrame(render); // setTimeout
+    renderer.render(scene, camera);
+  }
+
+  </script>
+</body>
+
+</html>
