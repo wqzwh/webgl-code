@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+  <script src="../lib/three-common.js"></script>
+</head>
+
+<body>
+  <script>
+  $(function() {
+
+    var shareObj = share();
+
+    // 定义一个立方体
+
+    var cubeGeometry = new THREE.BoxGeometry(5,5,5);
+    var cubeMaterial = new THREE.MeshLambertMaterial({color:0xff0000});
+    var cube = new THREE.Mesh(cubeGeometry,cubeMaterial);
+    cube.castShadow = true;
+
+    cube.position.set(-4,3,0);
+
+    shareObj.scene.add(cube);
+
+    shareObj.camera.position.set(-25,30,25);
+
+    shareObj.camera.lookAt(shareObj.scene.position);
+
+
+    // 加入点光源
+
+    var pointLight = new THREE.PointLight(0xffffff);
+    pointLight.position.set(-40,60,10);
+
+    shareObj.scene.add(pointLight);
+
+    document.body.appendChild(shareObj.renderer.domElement);
+
+    render();
+
+    function render(){
+      requestAnimationFrame(render);
+      pointLight.position.z += 0.2;
+      shareObj.renderer.render(shareObj.scene,shareObj.camera);
+
+    }
+
+  })
+
+  </script>
+</body>
+
+</html>

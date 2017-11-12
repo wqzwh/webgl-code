@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+  <script src="../lib/three-common.js"></script>
+</head>
+
+<body>
+  <script>
+  $(function() {
+
+    var shareObj = share();
+
+    // 定义一个立方体
+
+    var cubeGeometry = new THREE.BoxGeometry(5, 5, 5);
+    var cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+    var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    cube.castShadow = true;
+
+    cube.position.set(-4, 3, 0);
+
+    shareObj.scene.add(cube);
+
+    var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
+    var sphereMaterial = new THREE.MeshLambertMaterial({ color: 0x770077 });
+    var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+
+    sphere.position.x = 20;
+    sphere.position.y = 5;
+    sphere.position.z = 2;
+
+    sphere.castShadow = true;
+
+    shareObj.scene.add(sphere);
+
+    shareObj.camera.position.set(-25, 30, 25);
+
+    shareObj.camera.lookAt(shareObj.scene.position);
+
+    // 加入光源
+
+    var spotLight = new THREE.SpotLight(0xffffff);
+    spotLight.position.set(-40, 60, 10);
+    spotLight.castShadow = true;
+
+    spotLight.target = cube;
+    spotLight.angle = Math.PI / 10;
+
+    shareObj.scene.add(spotLight);
+
+    document.body.appendChild(shareObj.renderer.domElement);
+
+    var angleNUM = 3;
+
+    document.onkeydown = function(event) {
+      console.log(event.keyCode);
+      switch (event.keyCode) {
+        case 38:
+          angleNUM += 1;
+          break;
+        case 40:
+          angleNUM -= 1;
+          if (angleNUM < 1) {
+            angleNUM = 1;
+          }
+          break;
+
+        case 37:
+          spotLight.position.x += 0.2;
+          break;
+        case 39:
+          spotLight.position.x -= 0.2;
+
+          break;
+      }
+    };
+
+    function render() {
+
+      spotLight.angle = Math.PI / angleNUM;
+      requestAnimationFrame(render);
+
+      shareObj.renderer.render(shareObj.scene, shareObj.camera);
+
+    }
+    render();
+
+  })
+
+  </script>
+</body>
+
+</html>
