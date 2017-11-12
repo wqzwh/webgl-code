@@ -48,6 +48,9 @@
     camera.position.z = 30;
     camera.lookAt(scene.position);
 
+    // 增加雾化处理
+    scene.fog = new THREE.Fog( 0xffffff, .005, 100 );
+
 
     // 创建环境光源
     var ambientLight = new THREE.AmbientLight(0x0c0c0c);
