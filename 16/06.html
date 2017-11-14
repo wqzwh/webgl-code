@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+  <script src="../lib/three-common.js"></script>
+</head>
+
+<body>
+  <script>
+    $(function() {
+
+      var shareObj = share(false);
+
+      shareObj.camera.position.set(-25, 30, 25);
+
+      shareObj.camera.lookAt(shareObj.scene.position);
+
+      // 创建网格对象的方法
+      function createMesh(geom) {
+        var meshMaterial = new THREE.MeshNormalMaterial();
+        var wireFrameMaterial = new THREE.MeshBasicMaterial();
+        wireFrameMaterial.wireframe = true;
+        return THREE.SceneUtils.createMultiMaterialObject(geom, [meshMaterial, wireFrameMaterial]);
+      }
+
+      var mesh = null;
+      var size = 10;
+      var z20 = createMesh(new THREE.IcosahedronGeometry(size));
+      var z4 = createMesh(new THREE.TetrahedronGeometry(size));
+      var z8 = createMesh(new THREE.OctahedronGeometry(size));
+      mesh = z20;
+
+      $("#z4").click(function(e){
+          shareObj.scene.remove(mesh);
+          mesh = z4;
+          shareObj.scene.add(mesh);
+      })
+
+      $("#z8").click(function(e){
+          shareObj.scene.remove(mesh);
+          mesh = z8;
+          shareObj.scene.add(mesh);
+      })
+
+      $("#z20").click(function(e){
+          shareObj.scene.remove(mesh);
+          mesh = z20;
+          shareObj.scene.add(mesh);
+      })
+      shareObj.scene.add(mesh);
+
+
+      var spotLight = new THREE.SpotLight(0xffffff);
+      spotLight.position.set(-40, 60, 10);
+      spotLight.castShadow = true;
+
+      shareObj.scene.add(spotLight);
+
+      $("#webgl-scene").append(shareObj.renderer.domElement);
+
+      render();
+
+      function render() {
+
+        z4.rotation.y += 0.01;
+        z8.rotation.y += 0.01;
+        z20.rotation.y += 0.01;
+        requestAnimationFrame(render);
+        shareObj.renderer.render(shareObj.scene, shareObj.camera);
+
+      }
+
+    })
+  </script>
+
+  <div id="webgl-scene"></div>
+
+  <div id="controller">
+      <button id="z4"> 正 4 面体 </button>
+      <button id="z8"> 正 8 面体 </button>
+      <button id="z20"> 正 20 面体 </button>
+
+  </div>
+</body>
+
+</html>

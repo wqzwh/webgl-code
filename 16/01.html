@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+  <script src="../lib/three-common.js"></script>
+</head>
+
+<body>
+  <script>
+    $(function() {
+
+      var shareObj = share(false);
+
+      shareObj.camera.position.set(-25, 30, 25);
+
+      shareObj.camera.lookAt(shareObj.scene.position);
+
+      // 创建网格对象的方法
+      function createMesh(geom) {
+        var meshMaterial = new THREE.MeshNormalMaterial();
+        var wireFrameMaterial = new THREE.MeshBasicMaterial();
+        wireFrameMaterial.wireframe = true;
+        return THREE.SceneUtils.createMultiMaterialObject(geom, [meshMaterial, wireFrameMaterial]);
+      }
+      var plane = createMesh(new THREE.PlaneGeometry(12, 15, 10, 15));
+      shareObj.scene.add(plane);
+
+      var spotLight = new THREE.SpotLight(0xffffff);
+      spotLight.position.set(-40, 60, 10);
+      spotLight.castShadow = true;
+
+      shareObj.scene.add(spotLight);
+
+      document.body.appendChild(shareObj.renderer.domElement);
+
+      render();
+
+      function render() {
+        plane.rotation.x += 0.01;
+        plane.rotation.z += 0.01;
+        plane.rotation.y += 0.01;
+        requestAnimationFrame(render);
+        shareObj.renderer.render(shareObj.scene, shareObj.camera);
+
+      }
+
+    })
+  </script>
+</body>
+
+</html>

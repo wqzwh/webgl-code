@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+  <script src="../lib/three-common.js"></script>
+</head>
+
+<body>
+  <script>
+    $(function() {
+
+      var shareObj = share(false);
+
+      shareObj.camera.position.set(-25, 30, 25);
+
+      shareObj.camera.lookAt(shareObj.scene.position);
+
+      // 创建网格对象的方法
+      function createMesh(geom) {
+        var meshMaterial = new THREE.MeshNormalMaterial();
+        var wireFrameMaterial = new THREE.MeshBasicMaterial();
+        wireFrameMaterial.wireframe = true;
+        return THREE.SceneUtils.createMultiMaterialObject(geom, [meshMaterial, wireFrameMaterial]);
+      }
+
+      var mesh;
+      var sphere = createMesh(new THREE.SphereGeometry(10,50,50,0, 2 * Math.PI));
+      var cylinder = createMesh(new THREE.CylinderGeometry(20,20,20,20,100))
+      var torus = createMesh(new THREE.TorusGeometry(10,2,20,10,Math.PI * 2));
+      var knot = createMesh(new THREE.TorusKnotGeometry(10,1,64,8,2,9,1))
+
+      mesh = sphere;
+
+      $('#sphere').click(function(){
+          shareObj.scene.remove(mesh);
+          mesh = sphere;
+          shareObj.scene.add(mesh);
+
+
+      });
+
+      $('#cylinder').click(function(){
+          shareObj.scene.remove(mesh);
+
+          mesh = cylinder;
+          shareObj.scene.add(mesh);
+
+      });
+
+      $('#torus').click(function(){
+          shareObj.scene.remove(mesh);
+
+          mesh = torus;
+          shareObj.scene.add(mesh);
+
+      });
+
+      $('#knot').click(function(){
+          shareObj.scene.remove(mesh);
+
+          mesh = knot;
+          shareObj.scene.add(mesh);
+
+      });
+
+      shareObj.scene.add(mesh);
+
+      var spotLight = new THREE.SpotLight(0xffffff);
+      spotLight.position.set(-40, 60, 10);
+      spotLight.castShadow = true;
+
+      shareObj.scene.add(spotLight);
+
+      $("#webgl-scene").append(shareObj.renderer.domElement)
+
+      render();
+
+      function render() {
+        sphere.rotation.y += 0.01;
+
+        cylinder.rotation.y += 0.01;
+
+        torus.rotation.y += 0.01;
+
+        knot.rotation.y += 0.01;
+
+        requestAnimationFrame(render);
+        shareObj.renderer.render(shareObj.scene, shareObj.camera);
+
+      }
+
+    })
+  </script>
+  <style>
+    .controller{
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+  <div id="webgl-scene"></div>
+  <div id="controller">
+    <button id="sphere">sphere</button>
+    <button id="cylinder">cylinder</button>
+    <button id="torus">torus</button>
+    <button id="knot">knot</button>
+  </div>
+</body>
+
+</html>

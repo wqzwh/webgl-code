@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+  <script src="../lib/three-common.js"></script>
+</head>
+
+<body>
+  <script>
+  $(function() {
+
+    var shareObj = share();
+
+    var cubeGeometry = new THREE.BoxGeometry(5, 5, 5);
+    var cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+    var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    cube.castShadow = true;
+
+
+    var sphereGeometry = new THREE.SphereGeometry(5, 20, 20);
+    var sphereMaterial = new THREE.MeshLambertMaterial({ color: 0x770077,wireframe:true });
+    var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+    sphere.position.set(0,3,2);
+
+    cube.position = sphere.position;
+
+    sphere.castShadow = true;
+
+    shareObj.scene.add(sphere);
+    shareObj.scene.add(cube);
+
+    shareObj.camera.position.set(-25, 30, 25);
+
+    shareObj.camera.lookAt(shareObj.scene.position);
+
+    var ambiLight = new THREE.AmbientLight('#1c1c1c');
+    shareObj.scene.add(ambiLight);
+
+    var spotLight = new THREE.SpotLight(0xffffff);
+    spotLight.position.set(-40,60,10);
+    spotLight.castShadow = true;
+
+    shareObj.scene.add(spotLight);
+
+    document.body.appendChild(shareObj.renderer.domElement);
+
+    render();
+
+    function render() {
+      shareObj.renderer.render(shareObj.scene, shareObj.camera);
+      cube.rotation.y  += 0.01;
+      sphere.rotation.y  += 0.01;
+      requestAnimationFrame(render);
+    }
+
+  })
+
+  </script>
+</body>
+
+</html>
