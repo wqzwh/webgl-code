@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+  <script src="../lib/three-common.js"></script>
+</head>
+
+<body>
+  <script>
+    $(function() {
+
+      var shareObj = share(false);
+
+      shareObj.camera.position.set(0, 0, 65);
+
+      shareObj.camera.lookAt(shareObj.scene.position);
+
+      createSprites();
+      var cloud;
+      // 创建粒子的方法
+      function createSprites(){
+        if(cloud){
+            shareObj.scene.remove(cloud);
+        }
+        var texture = new THREE.ImageUtils.loadTexture('./yudi.png');
+        var geom = new THREE.Geometry();
+        var material = new THREE.PointsMaterial({
+          size:10,
+          transparent:true,
+          opacity : 0.3,
+          map:texture,
+          // blending:THREE.AdditiveBlending,
+          sizeAttenuation:true,
+          color:0xffffff
+        });
+        var range = 600;
+        for(var i = 0;i<1000;i++){
+            var particle = new THREE.Vector3(
+              Math.random() * range - range/2,
+              Math.random() * range - range/2,
+              Math.random() * range - range/2
+            );
+            particle.velocityY = 0.1 + Math.random() /5;
+            particle.velocityX = (Math.random()-0.5) / 3;
+            geom.vertices.push(particle);
+        }
+        cloud = new THREE.Points(geom,material);
+        cloud.sortParticles = true;
+        shareObj.scene.add(cloud);
+      }
+
+
+      var spotLight = new THREE.SpotLight(0xffffff);
+      spotLight.position.set(-40, 60, 10);
+      spotLight.castShadow = true;
+
+      shareObj.scene.add(spotLight);
+
+      document.body.appendChild(shareObj.renderer.domElement);
+
+      render();
+      var startTime = Date.now();
+
+      function render() {
+
+        if(Date.now() - startTime > 80){
+            createSprites();
+            startTime = Date.now();
+
+        }
+
+        requestAnimationFrame(render);
+        // 得到顶点
+        var vertices = cloud.geometry.vertices;
+        vertices.forEach(function(v){
+            v.y = v.y - v.velocityY;
+            v.x = v.x - v.velocityX;
+            if(v.y <= 0 ) v.y = 60;
+            if(v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX -1;
+        });
+        shareObj.renderer.render(shareObj.scene, shareObj.camera);
+
+      }
+
+    })
+  </script>
+</body>
+
+</html>

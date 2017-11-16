@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+  <script src="../lib/three-common.js"></script>
+</head>
+
+<body>
+  <script>
+    $(function() {
+
+      var shareObj = share(false);
+
+      shareObj.camera.position.set(0, 0, 115);
+
+      shareObj.camera.lookAt(shareObj.scene.position);
+
+      createSprites();
+      var cloud;
+      // 创建粒子的方法
+      function createSprites(){
+        var geom = new THREE.Geometry();
+        var material = new THREE.PointsMaterial({
+          size:5,
+          vertexColors:true,
+          opacity:.5,
+          transparent:true,
+          sizeAttenuation:true,
+          color:0xffffff
+        });
+        for(var x = -5;x<5;x++){
+          for(var y = -5;y<5;y++){
+            var particle = new THREE.Vector3(x*10,y*10,0);
+            geom.vertices.push(particle);
+            var color = new THREE.Color(0x00ffff);
+            color.setHSL(color.getHSL().h,color.getHSL().s,Math.random() * color.getHSL().l);
+            geom.colors.push(color);
+          }
+        }
+        cloud = new THREE.Points(geom,material);
+        shareObj.scene.add(cloud);
+      }
+
+
+      var spotLight = new THREE.SpotLight(0xffffff);
+      spotLight.position.set(-40, 60, 10);
+      spotLight.castShadow = true;
+
+      shareObj.scene.add(spotLight);
+
+      document.body.appendChild(shareObj.renderer.domElement);
+
+      render();
+
+      function render() {
+        cloud.rotation.x += 0.01;
+        cloud.rotation.y += 0.01;
+        cloud.rotation.z += 0.01;
+        requestAnimationFrame(render);
+        shareObj.renderer.render(shareObj.scene, shareObj.camera);
+
+      }
+
+    })
+  </script>
+</body>
+
+</html>

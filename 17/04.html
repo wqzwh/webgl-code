@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+  <script src="../lib/three-common.js"></script>
+</head>
+
+<body>
+  <script>
+    $(function() {
+
+      var shareObj = share(false);
+
+      shareObj.camera.position.set(0, 0, 65);
+
+      shareObj.camera.lookAt(shareObj.scene.position);
+
+      createSprites();
+      var group;
+      // 创建粒子的方法
+      function createSprites(){
+        group = new THREE.Object3D();
+        var range = 200;
+        for(var i=0;i<500;i++){
+            group.add(createSprite(10,false,0.6,0xffffff,i%5,range));
+
+        }
+        shareObj.scene.add(group);
+      }
+
+      function getTexture(){
+         return new THREE.ImageUtils.loadTexture('./yudi.png');
+      }
+
+      function createSprite(size,transparent,opacity,color,spriteNumber,range){
+          var spriteMaterial = new THREE.SpriteMaterial({
+             opacity:opacity,
+              color:color,
+              transparent:transparent,
+              map:getTexture()
+
+          });
+
+          spriteMaterial.map.offset = new THREE.Vector2(0.2 * spriteNumber, 0 );
+          spriteMaterial.map.repeat = new THREE.Vector2(1/5,1);
+          spriteMaterial.depthTest = false;
+          // spriteMaterial.blending = THREE.AdditiveBlending;
+          // 创建精灵类
+          var sprite = new THREE.Sprite(spriteMaterial);
+          // 对精灵进行裁剪
+          sprite.scale.set(size,size,size);
+          sprite.position.set(
+                  Math.random() * range - range/2,
+                  Math.random() * range - range/2,
+                  Math.random() * range - range/2
+          );
+          sprite.velocityX = 5;
+          return sprite;
+      }
+
+
+      var spotLight = new THREE.SpotLight(0xffffff);
+      spotLight.position.set(-40, 60, 10);
+      spotLight.castShadow = true;
+
+      shareObj.scene.add(spotLight);
+
+      document.body.appendChild(shareObj.renderer.domElement);
+
+      render();
+
+      function render(){
+          group.rotation.x += 0.01;
+
+          requestAnimationFrame(render);
+
+
+          shareObj.renderer.render(shareObj.scene,shareObj.camera);
+
+      }
+
+    })
+  </script>
+</body>
+
+</html>
