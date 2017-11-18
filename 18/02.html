@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+  <script src="../lib/TrackballControls.js"></script>
+</head>
+
+<body>
+  <script>
+    $(function() {
+
+      var clock = new THREE.Clock();
+
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, .1, 1000);
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setClearColor(new THREE.Color(0xEEEEEE,1.0));
+      renderer.setSize(window.innerWidth,window.innerHeight);
+
+      // 定义一个几何体
+      var planeGeometry = new THREE.PlaneGeometry(60,20,1,1);
+      var planeMaterial = new THREE.MeshLambertMaterial({color:0xffffff});
+      var plane = new THREE.Mesh(planeGeometry,planeMaterial);
+
+      plane.position.set(15,0,0);
+
+      plane.rotation.x = -0.5 * Math.PI;
+
+      scene.add(plane);
+
+
+      // 定义一个立方体
+      function addCube(x,y,z){
+        var cubeGeometry = new THREE.BoxGeometry(4,4,4);
+        var cubeMaterial = new THREE.MeshLambertMaterial({color:0xff00ff});
+        var cube = new THREE.Mesh(cubeGeometry,cubeMaterial);
+
+        cube.position.set(x,y,z);
+
+        scene.add(cube);
+      }
+
+      addCube(3,10,5);
+      addCube(13,2,5);
+      addCube(33,8,5);
+
+      var trackballControls = new THREE.TrackballControls(camera);
+      trackballControls.rotateSpeed = 1.0;
+      trackballControls.zoomSpeed = 1.0;
+      trackballControls.panSpeed = 1.0;
+      trackballControls.staticMoving = true;
+
+       camera.position.set(-30,40,30);
+       camera.lookAt(scene.position);
+
+       // 定义环境光
+       var ambientLight = new THREE.AmbientLight(0x0c0c0c);
+       scene.add(ambientLight);
+
+      // 定义聚光灯
+      var spotLight = new THREE.SpotLight(0xffffff);
+      spotLight.position.set(-40,60,-10);
+      scene.add(spotLight);
+
+       document.body.appendChild(renderer.domElement);
+
+       render();
+
+       function render(){
+         requestAnimationFrame(render);
+
+         var delta = clock.getDelta();
+         trackballControls.update(delta);
+
+         renderer.render(scene,camera)
+       }
+
+    })
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+.DS_Store
+*.zip
+.idea
+/test
+/dev
+/dist
+/tmp
+# 将dist 文件上传至source dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
