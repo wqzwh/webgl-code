@@ -10,10 +10,13 @@ function * globalInfo() {
     yield put({ type: SET_CURRENT, user: uInfo.data.user })
   }
 
-  const mInfo = yield call(API.getMenu)
-  if (mInfo.code === 0) {
-    yield put({ type: SET_MENUINFO, menuInfo: mInfo.data })
-  }
+  const mData = [
+    {
+      name: '旋转三角形',
+      children: []
+    }
+  ]
+  yield put({ type: SET_MENUINFO, menuInfo: mData })
 }
 
 function * saga() {

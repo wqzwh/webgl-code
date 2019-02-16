@@ -1,26 +1,25 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { Layout, Menu, Icon } from 'antd'
-import { connect } from 'react-redux'
+import { Layout, Menu } from 'antd'
 import styles from './container.less'
 
-const { SubMenu } = Menu
+// const { SubMenu } = Menu
 const { Header, Sider, Footer } = Layout
 
 class Container extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedKeys: []
+      selectedKeys: [],
+      currentUser: 'wangqi',
+      mInfo: [
+        {
+          name: '旋转三角形',
+          relativeUrl: ''
+        }
+      ]
     }
-  }
-  componentDidMount() {
-    this.getInfo()
-  }
-  getInfo() {
-    const { dispatch } = this.props
-    dispatch({ type: 'GOLOBAL_SAGA' })
   }
   onSelect({ item, key, selectedKeys }) {
     this.setState({
@@ -28,26 +27,12 @@ class Container extends Component {
     })
   }
   render() {
-    const { menuInfo, children } = this.props
-    const subMenuList = menuInfo.map((itm, idx) => {
+    const { children } = this.props
+    const subMenuList = this.state.mInfo.map((itm, idx) => {
       return (
-        <SubMenu
-          key={`sub${idx}`}
-          title={
-            <span>
-              <Icon type='user' />
-              {itm.name}
-            </span>
-          }
-        >
-          {itm.children.map((im, ix) => {
-            return (
-              <Menu.Item key={im.relativeUrl}>
-                <Link to={im.relativeUrl}>{im.name}</Link>
-              </Menu.Item>
-            )
-          })}
-        </SubMenu>
+        <Menu.Item key={idx}>
+          <Link to={itm.relativeUrl}>{itm.name}</Link>
+        </Menu.Item>
       )
     })
     return (
@@ -57,7 +42,7 @@ class Container extends Component {
             <div className={styles.logo}>
               <a href='/'>WebGL-Demo</a>
             </div>
-            <a className={styles['dropdown-link']}>{this.props.currentUser}</a>
+            <a className={styles['dropdown-link']}>{this.state.currentUser}</a>
           </Header>
           <Layout>
             <Sider
@@ -79,7 +64,7 @@ class Container extends Component {
                 {subMenuList}
               </Menu>
             </Sider>
-            <Layout style={{ padding: '0 12px 12px' }}>{this.props.currentUser ? children : ''}</Layout>
+            <Layout style={{ padding: '0 12px 12px' }}>{this.state.currentUser ? children : ''}</Layout>
           </Layout>
           <Footer style={{ textAlign: 'center' }}>WebGL ©2019 Created by wangqi</Footer>
         </Layout>
@@ -89,15 +74,7 @@ class Container extends Component {
 }
 
 Container.propTypes = {
-  dispatch: PropTypes.func,
-  currentUser: PropTypes.string,
-  children: PropTypes.any,
-  menuInfo: PropTypes.array
+  children: PropTypes.any
 }
 
-export default connect(state => {
-  return {
-    currentUser: state.globalData.currentUser,
-    menuInfo: state.globalData.menuInfo
-  }
-})(Container)
+export default Container
